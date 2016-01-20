@@ -1,0 +1,28 @@
+#include <stdio.h>
+// we need malloc()
+#include <stdlib.h>
+// we need sleep()
+#include <unistd.h>
+// we need assert()
+#include <assert.h>
+
+void main()
+{
+    int i;
+    int memory_allocations[200];
+    for(i=0; i<1000; i++){
+        printf("Let's leak some memory\n");
+        char *leaky = "SOmething will leak here\n";
+        // if the allocation is to small then the system will instead use brk() to allocate larger regions
+        // instead of calling malloc for every small pointer
+        char *mem = malloc(sizeof(leaky)*4096*4096);
+        // if we want to make a leak mean something we have to write something into the memory
+        // otherwise we are simply storing the pointer reference instead of the actual string
+        mem = strdup(leaky);
+        mem = leaky;
+        printf("Allocated (%i): %p\n",i, mem);
+        //int *memory_allocations[i] = malloc(10);
+        assert(mem != NULL);
+        usleep(10000);
+    }
+}
