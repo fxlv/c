@@ -5,12 +5,26 @@
 #include <unistd.h>
 // we need assert()
 #include <assert.h>
+// we need getrlimit and friends
+#include <sys/resource.h>
 
 void main()
 {
+
+    struct rlimit limit; 
+    int required_core_limit = -1; //unlimited
+
+    getrlimit(RLIMIT_CORE, &limit);
+    // limit.rlim_max and limit.rlim_cur are now available
+    if ( limit.rlim_cur != required_core_limit )
+    {
+        printf("Please set core limit to 'unlimited' first.\n");
+        exit(1);
+    }
+
     int i;
     int memory_allocations[200];
-    for(i=0; i<1000; i++){
+    for(i=0; i<20; i++){
         printf("Let's leak some memory\n");
         char *leaky = "SOmething will leak here\n";
         // if the allocation is to small then the system will instead use brk() to allocate larger regions
@@ -23,6 +37,6 @@ void main()
         printf("Allocated (%i): %p\n",i, mem);
         //int *memory_allocations[i] = malloc(10);
         assert(mem != NULL);
-        usleep(10000);
+        usleep(100000);
     }
 }
