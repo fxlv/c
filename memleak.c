@@ -12,13 +12,13 @@ void main()
 {
 
     struct rlimit limit; 
-    int required_core_limit = -1; //unlimited
 
     getrlimit(RLIMIT_CORE, &limit);
     // limit.rlim_max and limit.rlim_cur are now available
-    if ( limit.rlim_cur != required_core_limit )
+    if ( limit.rlim_cur != RLIM_INFINITY )
     {
         printf("Please set core limit to 'unlimited' first.\n");
+        printf("Current limits are: %d (current) and %d (max)\n", limit.rlim_cur, limit.rlim_max);
         exit(1);
     }
 
