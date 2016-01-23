@@ -19,7 +19,7 @@ void main()
     {
         printf("Please set core limit to 'unlimited' first.\n");
         printf("Current limits are: %d (current) and %d (max)\n", limit.rlim_cur, limit.rlim_max);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     int i;
