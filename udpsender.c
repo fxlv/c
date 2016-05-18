@@ -10,7 +10,7 @@
 void usage()
 {
     printf("Usage:\n");
-    printf("./udpsender -t <target>\n\n");
+    printf("./udpsender -t <target> -p <port>\n\n");
 }
 
 int main(int argc, char *argv[])
