@@ -13,14 +13,33 @@ void usage()
     printf("./udpsender -t <target> -p <port>\n\n");
 }
 
-int main(int argc, char *argv[])
+void sender(char *target, int port)
 {
     int s;
-    int port = 200;
-    char *hostname;
     char *msg;
     struct sockaddr_in serveraddr;
     struct hostent *server;
+
+    msg = "Hi!"; // default message
+
+    s = socket(AF_INET, SOCK_DGRAM, 0);
+
+    server = gethostbyname(target);
+
+    bzero((char *) &serveraddr, sizeof(serveraddr));
+    serveraddr.sin_family = AF_INET;
+    bcopy((char *)server->h_addr, 
+    (char *)&serveraddr.sin_addr.s_addr, server->h_length);
+    serveraddr.sin_port = htons(port);
+    printf("Sending packet to %s:%d\n", target, port);
+    sendto(s, msg, strlen(msg), 0, &serveraddr, sizeof(serveraddr));
+}
+
+
+int main(int argc, char *argv[])
+{
+    int port = 200;
+    char *hostname;
 
     int opt;
     extern char *optarg;
@@ -38,18 +57,6 @@ int main(int argc, char *argv[])
                 usage();
         }
     }
-
-    msg = "Hi!"; // default message
-
-    s = socket(AF_INET, SOCK_DGRAM, 0);
-
-    server = gethostbyname(target);
-
-    bzero((char *) &serveraddr, sizeof(serveraddr));
-    serveraddr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, 
-    (char *)&serveraddr.sin_addr.s_addr, server->h_length);
-    serveraddr.sin_port = htons(port);
-    printf("Sending packet to %s:%d\n", target, port);
-    sendto(s, msg, strlen(msg), 0, &serveraddr, sizeof(serveraddr));
+    // send the packet
+    sender(target, port);
 }
