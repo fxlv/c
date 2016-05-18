@@ -24,26 +24,24 @@ int main(int argc, char *argv[])
 
     int opt;
     extern char *optarg;
-    char *target;
+    char *target = "fx.lv";
 
-    while((opt = getopt(argc, argv, "t:")) != -1){
+    while((opt = getopt(argc, argv, "t:p:")) != -1){
         switch(opt){
             case 't':
                 target = optarg;
+                break;
+            case 'p':
+                port = atoi(optarg); // cast to integer
                 break;
             default:
                 usage();
         }
     }
 
-    if(target == NULL){
-        target = "fx.lv"; // set default target
-    }
-
     msg = "Hi!"; // default message
 
     s = socket(AF_INET, SOCK_DGRAM, 0);
-
 
     server = gethostbyname(target);
 
