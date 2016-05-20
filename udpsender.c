@@ -7,10 +7,19 @@
 #include <netdb.h> 
 #include <unistd.h>
 
+void printstderr(char *msg)
+{
+    fprintf(stderr, msg);
+}
+
 void usage()
 {
-    printf("Usage:\n");
-    printf("./udpsender -t <target> -p <port>\n\n");
+    printstderr("usage: ./udpsender target [ -p port ] [ -c count ] [ -h ]\n");
+    printstderr("\t target:\tDestination IP or hostname\n");
+    printstderr("\t -p port:\tDestination port where to send the packet\n");
+    printstderr("\t -c count:\tHow many packets to send\n");
+    printstderr("\t -h:\t\tPrint this usage message\n");
+    exit(0);
 }
 
 void sender(char *target, int port)
@@ -45,7 +54,7 @@ int main(int argc, char *argv[])
     extern char *optarg;
     char *target = "fx.lv";
 
-    while((opt = getopt(argc, argv, "t:p:")) != -1){
+    while((opt = getopt(argc, argv, "ht:p:")) != -1){
         switch(opt){
             case 't':
                 target = optarg;
@@ -53,8 +62,12 @@ int main(int argc, char *argv[])
             case 'p':
                 port = atoi(optarg); // cast to integer
                 break;
+            case 'h':
+                usage();
+                break;
             default:
                 usage();
+                break;
         }
     }
     // send the packet
