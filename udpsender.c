@@ -14,15 +14,15 @@ void printstderr(char *msg)
 
 void usage()
 {
-    printstderr("usage: ./udpsender target [ -p port ] [ -c count ] [ -h ]\n");
-    printstderr("\t target:\tDestination IP or hostname\n");
+    printstderr("usage: ./udpsender -t target [ -p port ] [ -c count ] [ -h ]\n");
+    printstderr("\t -t target:\tDestination IP or hostname\n");
     printstderr("\t -p port:\tDestination port where to send the packet\n");
     printstderr("\t -c count:\tHow many packets to send\n");
     printstderr("\t -h:\t\tPrint this usage message\n");
     exit(0);
 }
 
-void sender(char *target, int port)
+void sender(char *target, int port, int count)
 {
     int s;
     char *msg;
@@ -40,27 +40,46 @@ void sender(char *target, int port)
     bcopy((char *)server->h_addr, 
     (char *)&serveraddr.sin_addr.s_addr, server->h_length);
     serveraddr.sin_port = htons(port);
-    printf("Sending packet to %s:%d\n", target, port);
-    sendto(s, msg, strlen(msg), 0, &serveraddr, sizeof(serveraddr));
+
+    char *packet_string = "packet";     
+    char buffer [20];
+    if(count > 1){ // packet or packets depending on count
+        sprintf(buffer, "%d packets", count);
+        packet_string = buffer;
+    }
+
+    printf("Sending %s to %s:%d\n", packet_string, target, port);
+    for(int i = 0; i < count; i++){
+        sendto(s, msg, strlen(msg), 0, &serveraddr, sizeof(serveraddr));
+    }
 }
 
 
 int main(int argc, char *argv[])
 {
+    // some defaults
     int port = 200;
+    int count = 1;
+
     char *hostname;
 
     int opt;
     extern char *optarg;
-    char *target = "fx.lv";
+    char *target;
+    
+    if(argc < 3) // at least target is expected
+        usage();
 
-    while((opt = getopt(argc, argv, "ht:p:")) != -1){
+    while((opt = getopt(argc, argv, "ht:p:c:")) != -1){
         switch(opt){
             case 't':
                 target = optarg;
                 break;
             case 'p':
                 port = atoi(optarg); // cast to integer
+                break;
+            case 'c':
+                count = atoi(optarg); // cast to integer
                 break;
             case 'h':
                 usage();
@@ -71,5 +90,5 @@ int main(int argc, char *argv[])
         }
     }
     // send the packet
-    sender(target, port);
+    sender(target, port, count);
 }
