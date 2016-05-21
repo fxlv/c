@@ -50,7 +50,7 @@ void sender(char *target, int port, int count)
 
     printf("Sending %s to %s:%d\n", packet_string, target, port);
     for(int i = 0; i < count; i++){
-        sendto(s, msg, strlen(msg), 0, &serveraddr, sizeof(serveraddr));
+        sendto(s, msg, strlen(msg), 0, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
     }
 }
 
