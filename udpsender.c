@@ -9,7 +9,7 @@
 
 void printstderr(char *msg)
 {
-    fprintf(stderr, msg);
+    fprintf(stderr, "%s", msg);
 }
 
 void usage()
@@ -60,8 +60,6 @@ int main(int argc, char *argv[])
     // some defaults
     int port = 200;
     int count = 1;
-
-    char *hostname;
 
     int opt;
     extern char *optarg;
