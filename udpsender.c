@@ -90,4 +90,5 @@ int main(int argc, char *argv[])
     }
     // send the packet
     sender(target, port, count);
+    return(0);
 }
