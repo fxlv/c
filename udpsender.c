@@ -1,3 +1,9 @@
+/*
+ *
+ * Send simple UDP datagrams to arbitrary destination.
+ *
+ */
+ 
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -64,7 +70,7 @@ int main(int argc, char *argv[])
 
     int opt;
     extern char *optarg;
-    char *target;
+    char *target = NULL;
     
     if(argc < 3) // at least target is expected
         usage();
@@ -88,6 +94,12 @@ int main(int argc, char *argv[])
                 break;
         }
     }
+
+    if(target == NULL){
+        printstderr("Target not provided.\n");
+        usage();
+    }
+
     // send the packet
     sender(target, port, count);
     return(0);
