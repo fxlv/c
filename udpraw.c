@@ -1,14 +1,11 @@
+#include <stdio.h>
 #include <netinet/ip.h>
 #include <netinet/udp.h>
 #include <sys/socket.h>
 #include <string.h>
-
-
-#include <errno.h>
 #include <unistd.h>
-#include <netdb.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 int main()
 {
@@ -22,8 +19,6 @@ int main()
     int dport = 53;
 
     unsigned char packet[28];
-    int raw_socket;
-    int on = 1 ;
     struct ip *ip;
 
     int rawsock;
