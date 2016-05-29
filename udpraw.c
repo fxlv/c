@@ -37,7 +37,7 @@ int main()
     udphdr->uh_sport = htons(sport);
     udphdr->uh_dport = htons(dport);
     udphdr->uh_ulen = htons(8);
-    unsigned short cs = 0x72af;
+    unsigned short cs = (unsigned short) 0xaf72;
     udphdr->uh_sum = cs;
 
     ip = (struct ip *)packet;
