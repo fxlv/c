@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <netinet/ip.h>
 #include <netinet/udp.h>
-#include <sys/socket.h>
 #include <string.h>
 #include <unistd.h>
 #include <netinet/in.h>
@@ -32,7 +31,6 @@ int main()
     udphdr->uh_sport = htons(sport);
     udphdr->uh_dport = htons(dport);
     udphdr->uh_ulen = htons(8);
-    //udphdr->uh_ulen = htons(28);
     udphdr->uh_sum = 0;
 
     ip = (struct ip *)packet;
