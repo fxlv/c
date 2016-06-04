@@ -1,20 +1,31 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <netinet/ip.h>
 #include <netinet/udp.h>
 #include <string.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-int main()
+void printstderr(char *msg)
+{
+    fprintf(stderr, "%s", msg);
+}
+
+void usage()
+{
+    printstderr("usage: ./udpraw -t target [ -p port ] [ -c count ] [ -h ]\n");
+    printstderr("\t -t target:\tDestination IP or hostname\n");
+    printstderr("\t -p port:\tDestination port where to send the packet\n");
+    printstderr("\t -s src_ip:\tSource IP address\n");
+    printstderr("\t -c count:\tHow many packets to send\n");
+    printstderr("\t -h:\t\tPrint this usage message\n");
+    exit(0);
+}
+void send_packet(char *src_ip, int src_port, char *dst_ip, int dst_port, int count)
 {
     struct udphdr *udphdr;
     struct sockaddr_in address;
-
-    char *src_ip = "10.111.102.29";
-    char *dst_ip = "10.111.102.21";
-
-    int sport = 2345;
-    int dport = 53;
 
     unsigned char packet[28];
     struct ip *ip;
@@ -27,8 +38,8 @@ int main()
 
     memset( (char *)udphdr, 0, 8);
 
-    udphdr->uh_sport = htons(sport);
-    udphdr->uh_dport = htons(dport);
+    udphdr->uh_sport = htons(src_port);
+    udphdr->uh_dport = htons(dst_port);
     udphdr->uh_ulen = htons(8);
     udphdr->uh_sum = 0;
 
@@ -39,7 +50,7 @@ int main()
     ip->ip_hl = 5;
     ip->ip_p = IPPROTO_UDP;
     ip->ip_len = 40;
-    ip->ip_id = htons(sport);
+    ip->ip_id = htons(src_port);
     ip->ip_ttl = 60;
     ip->ip_sum = 1;
     ip->ip_src.s_addr = inet_addr(src_ip);
@@ -49,7 +60,7 @@ int main()
     printf("ip->ip_dst.s_addr --> %08x\n",ip->ip_dst.s_addr);
 
     address.sin_family = AF_INET;
-    address.sin_port = htons(dport);
+    address.sin_port = htons(dst_port);
     address.sin_addr.s_addr = inet_addr(dst_ip);
 
     uint16_t csum1;
@@ -67,12 +78,60 @@ int main()
     printf("Checksum: %04x (htoned) \n", htons(csum1));
     udphdr->uh_sum = htons(csum1);
 
+    printf("Sending UDP packet from %s:%d to %s:%d\n", src_ip, src_port, dst_ip, dst_port);
     int send_result = sendto( rawsock, &packet, sizeof(packet), 0x0,
         (struct sockaddr *)&address, sizeof(address));
     if(send_result > 0)
         printf("Packet sent (result: %d)\n", send_result);
     else
         printf("Failed to send packet\n");
+}
 
+int main(int argc, char *argv[])
+{
+
+    // some defaults
+    int port = 200;
+    int count = 1;
+    int opt;
+    extern char *optarg;
+    char *src_ip = "10.111.103.201";
+    char *dst_ip = NULL;
+
+    if(argc < 3) // at least target is expected
+        usage();
+
+    while((opt = getopt(argc, argv, "ht:p:c:")) != -1){
+        switch(opt){
+            case 't':
+                dst_ip = optarg;
+                break;
+            case 's':
+                src_ip = optarg;
+                break;
+            case 'p':
+                port = atoi(optarg); // cast to integer
+                break;
+            case 'c':
+                count = atoi(optarg); // cast to integer
+                break;
+            case 'h':
+                usage();
+                break;
+            default:
+                usage();
+                break;
+        }
+    }
+    if(dst_ip == NULL){
+        printstderr("Target not provided.\n");
+        usage();
+    }
+    if(src_ip == NULL){
+        printf("Source IP not provided, default will be used.\n");
+    }
+
+    // send the packet
+    send_packet(src_ip, 2223, dst_ip, port, 1);
     return 0;
 }
