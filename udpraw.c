@@ -92,7 +92,8 @@ int main(int argc, char *argv[])
 {
 
     // some defaults
-    int port = 200;
+    int dst_port = 200;
+    int src_port = 200;
     int count = 1;
     int opt;
     extern char *optarg;
@@ -102,7 +103,7 @@ int main(int argc, char *argv[])
     if(argc < 3) // at least target is expected
         usage();
 
-    while((opt = getopt(argc, argv, "hd:p:c:s:")) != -1){
+    while((opt = getopt(argc, argv, "hd:p:c:s:l:")) != -1){
         switch(opt){
             case 'd':
                 dst_ip = optarg;
@@ -111,7 +112,10 @@ int main(int argc, char *argv[])
                 src_ip = optarg;
                 break;
             case 'p':
-                port = atoi(optarg); // cast to integer
+                dst_port = atoi(optarg); // cast to integer
+                break;
+            case 'l':
+                src_port = atoi(optarg); // cast to integer
                 break;
             case 'c':
                 count = atoi(optarg); // cast to integer
@@ -133,6 +137,6 @@ int main(int argc, char *argv[])
     }
 
     // send the packet
-    send_packet(src_ip, 2223, dst_ip, port, 1);
+    send_packet(src_ip, src_port, dst_ip, dst_port, count);
     return 0;
 }
